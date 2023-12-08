@@ -1,0 +1,5 @@
+name: Statistics
+version: '${project.version}'
+main: me.nuclearteam.statistics.Statistics
+api-version: '1.20'
+load: STARTUP
