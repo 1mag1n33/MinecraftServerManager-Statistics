@@ -18,8 +18,11 @@ public class ExtensionLoader {
 
     private static JavaPlugin plugin;
 
-    public ExtensionLoader(JavaPlugin plugin) {
-        this.plugin = plugin;
+    private static ExtensionInfoManager config;
+
+    public ExtensionLoader(JavaPlugin plugin, ExtensionInfoManager config) {
+        ExtensionLoader.plugin = plugin;
+        ExtensionLoader.config = config;
     }
 
     public void loadExtensions(Logger paperLogger, String pluginName) {
@@ -35,15 +38,24 @@ public class ExtensionLoader {
             if (extensionFiles != null) {
                 for (File extensionFile : extensionFiles) {
                     try {
-                        Extension extension = loadExtension(extensionFile, paperLogger);
+                        Extension extension = loadExtension(extensionFile, config);
                         if (extension != null) {
                             extensions.add(extension);
+                            if (config != null) {
+                                config.setName(config.getName());
+                                config.setAuthor(config.getAuthor());
+                                config.setDescription(config.getDescription());
+                                config.setVersion(config.getVersion());
 
+                                plugin.getLogger().info(String.format("Registered: %s, Author: %s", config.getName(), config.getAuthor()));
+                            } else {
+                                plugin.getLogger().warning("ExtensionInfoManager is null.");
+                            }
                             extension.onEnable();
-                            plugin.getLogger().info(String.format("Registered: %s, Author: %s", extension.getExtensionName(), extension.getAuthor()));
+
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        plugin.getLogger().severe("Error loading extension from file: " + extensionFile.getName() + ", " + e.getMessage());
                     }
                 }
             }
@@ -51,7 +63,7 @@ public class ExtensionLoader {
 
     }
 
-    private static Extension loadExtension(File jarFile, Logger paperLogger) throws Exception {
+    private static Extension loadExtension(File jarFile, ExtensionInfoManager config) throws Exception {
         URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, Extension.class.getClassLoader());
         JarFile jar = new JarFile(jarFile);
 
@@ -69,7 +81,6 @@ public class ExtensionLoader {
                     if (Extension.class.isAssignableFrom(loadedClass) && !Modifier.isInterface(loadedClass.getModifiers()) && !Modifier.isAbstract(loadedClass.getModifiers())) {
                         try {
                             loadedExtension = (Extension) loadedClass.getDeclaredConstructor().newInstance();
-                            loadedExtension.setLogger(paperLogger);
                             break;
                         } catch (Exception e) {
                             e.printStackTrace();

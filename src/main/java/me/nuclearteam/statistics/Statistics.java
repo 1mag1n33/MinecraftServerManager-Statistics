@@ -1,6 +1,7 @@
 package me.nuclearteam.statistics;
 
 import me.nuclearteam.statistics.cogs.Utils;
+import me.nuclearteam.statistics.cogs.extension.ExtensionInfoManager;
 import me.nuclearteam.statistics.cogs.extension.ExtensionLoader;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,13 +19,16 @@ public final class Statistics extends JavaPlugin {
 
     public FileConfiguration config;
     private final Gson gson = new Gson();
+    private static Statistics instance;
+
+    private static final ExtensionInfoManager info = new ExtensionInfoManager();
 
     @Override
     public void onEnable() {
 
-
+        instance = this;
         saveDefaultConfig();
-        ExtensionLoader extensionLoader = new ExtensionLoader(this);
+        ExtensionLoader extensionLoader = new ExtensionLoader(this, info);
 
         config = getConfig();
         extensionLoader.loadExtensions(getLogger(), this.getName());
@@ -35,10 +39,12 @@ public final class Statistics extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
     }
 
-    // Method to be executed every minute
+    public static Statistics getInstance() {
+        return instance;
+    }
+
     private void updateStatisticsTask() {
         try {
             Map<String, Object> statistics = new HashMap<>();
