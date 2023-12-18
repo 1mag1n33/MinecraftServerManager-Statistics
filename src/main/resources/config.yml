@@ -1,3 +1,6 @@
 proxy-server:
-  ip: "0.0.0.0"
+  ip: "127.0.0.1"
   port: 12345
+
+  # Do not touch (Seriously)!
+  id:

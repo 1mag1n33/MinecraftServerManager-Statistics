@@ -11,7 +11,11 @@ import java.util.Map;
 
 public class utils extends Statistics{
     private final Gson gson = new Gson();
-    private final PlSocket plSocket = new PlSocket(getConfig());
+    private final PlSocket plSocket;
+
+    public utils(PlSocket plSocket) {
+        this.plSocket = plSocket;
+    }
 
 
     public void updateStatisticsTask() {
